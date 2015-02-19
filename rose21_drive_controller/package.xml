@@ -1,0 +1,46 @@
+<?xml version="1.0"?>
+<package>
+  <name>rose21_drive_controller</name>
+  <version>0.0.0</version>
+  <description>The rose21_drive_controller package</description>
+
+  <maintainer email="ohendriks@robot-rose.nl">Okke Hendriks</maintainer>
+
+  <license>TODO</license>
+  <buildtool_depend>catkin</buildtool_depend>
+  
+  <build_depend>contact_sensor_msgs</build_depend>
+  <build_depend>geometry_msgs</build_depend>
+  <build_depend>operator_messaging</build_depend>
+  <build_depend>opteq_wheelunits_01</build_depend>
+  <build_depend>roscomm</build_depend>
+  <build_depend>roscpp</build_depend>
+  <build_depend>rose_base_msgs</build_depend>
+  <build_depend>rose_common</build_depend>
+  <build_depend>rose_conversions</build_depend>
+  <build_depend>rose_footprint_collision_checker</build_depend>
+  <build_depend>rose_geometry</build_depend>
+  <build_depend>rose_transformations</build_depend>
+  <build_depend>sensor_msgs</build_depend>
+  <build_depend>server_multiple_client</build_depend>
+  <build_depend>shared_variables</build_depend>
+  
+  <run_depend>contact_sensor_msgs</run_depend>
+  <run_depend>geometry_msgs</run_depend>
+  <run_depend>operator_messaging</run_depend>
+  <run_depend>opteq_wheelunits_01</run_depend>
+  <run_depend>roscomm</run_depend>
+  <run_depend>roscpp</run_depend>
+  <run_depend>rose_base_msgs</run_depend>
+  <run_depend>rose_common</run_depend>
+  <run_depend>rose_conversions</run_depend>
+  <run_depend>rose_footprint_collision_checker</run_depend>
+  <run_depend>rose_geometry</run_depend>
+  <run_depend>rose_transformations</run_depend>
+  <run_depend>sensor_msgs</run_depend>
+  <run_depend>server_multiple_client</run_depend>
+  <run_depend>shared_variables</run_depend>
+
+  <export>
+  </export>
+</package>
