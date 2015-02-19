@@ -16,7 +16,7 @@ find_package(catkin REQUIRED COMPONENTS
 		rose_transformations
 		sensor_msgs
 		server_multiple_client
-		shared_variables
+		rose_shared_variables
 	)
 
 catkin_package(
@@ -39,7 +39,7 @@ catkin_package(
 		rose_transformations
 		sensor_msgs
 		server_multiple_client
-		shared_variables
+		rose_shared_variables
  DEPENDS 
 
 )

@@ -32,7 +32,7 @@
 #include "tf_helper/tf_helper.hpp"
 #include "operator_messaging/operator_messaging.hpp"
 
-#include "shared_variables/shared_variable.hpp"
+#include "rose_shared_variables/shared_variable.hpp"
 
 #include "action_result_message.hpp"
 
@@ -64,7 +64,7 @@
 #define PLATFORM_WHEELBASE_WIDTH    0.474 //0.48 // [m] The heart-heart distance of the wheels in the x direction
 
 using namespace std;
-using namespace shared_variables;
+using namespace rose_shared_variables;
 
 /**
  * The drive controller receives high level movement commands and translates them into
