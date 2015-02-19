@@ -1,0 +1,22 @@
+<?xml version="1.0"?>
+<package>
+  <name>odometry</name>
+  <version>0.0.1</version>
+  <description>The odometry package</description>
+
+  <maintainer email="langen@robot-rose.nl">Mathijs de Langen</maintainer>
+
+  <license>BSD</license>
+
+  <buildtool_depend>catkin</buildtool_depend>
+
+  <build_depend>opteq_wheelunits_01</build_depend>
+  <build_depend>rose_conversions</build_depend>
+
+  <run_depend>opteq_wheelunits_01</run_depend>
+  <run_depend>rose_conversions</run_depend>
+
+  <export>
+  
+  </export>
+</package>

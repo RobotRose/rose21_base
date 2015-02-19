@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<package>
+  <name>rose21_base</name>
+  <version>0.0.1</version>
+  <description>The rose21_base package</description>
+
+   <author email="langen@robot-rose.nl">Mathijs de Langen</author>
+  <maintainer email="langen@robot-rose.nl">Mathijs de Langen</maintainer>
+
+  <license>BSD</license>
+
+  <buildtool_depend>catkin</buildtool_depend>
+
+  <run_depend>odometry</run_depend>
+
+  <export>
+    <metapackage />
+  </export>
+</package>
