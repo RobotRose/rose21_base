@@ -9,7 +9,7 @@
 * Description:
 *   This controller receives high level velocity and direction commands.
 *   These will be translated into rotation angles and velocities for the 
-*   wheel_controller. 
+*   platform_controller. 
 * 
 ***********************************************************************************/
 #include "rose21_drive_controller/drive_controller.hpp"
@@ -23,7 +23,7 @@ DriveController::DriveController(string name, ros::NodeHandle n)
     // Start the sever multiple client
     smc_ = new SMC(n_, name_, boost::bind(&DriveController::CB_CommandVelocity, this, _1, _2));
     
-    smc_->addClient<rose_base_msgs::wheelunit_statesAction>("wheel_controller", 
+    smc_->addClient<rose_base_msgs::wheelunit_statesAction>("platform_controller", 
         boost::bind(&DriveController::CB_success, this, _1, _2),
         boost::bind(&DriveController::CB_fail, this, _1, _2),
         NULL, NULL);
@@ -183,7 +183,7 @@ void DriveController::CB_CommandVelocity(const rose_base_msgs::cmd_velocityGoalC
         if(smc_->hasActiveGoal())
             smc_->sendServerResult(false, server_result);
     }
-    // Otherwise the results depend on wheel_controller thus success or failure is registred through CB_success or CB_fail
+    // Otherwise the results depend on platform_controller thus success or failure is registred through CB_success or CB_fail
 }
 
 bool DriveController::executeMovement(float x_velocity, float y_velocity, float w_velocity)
@@ -450,5 +450,5 @@ void DriveController::requestWheelUnitStates()
     // Set this wheel unit state via smc 
     rose_base_msgs::wheelunit_statesGoal goal;
     goal.requested_state = wheelunit_states;
-    smc_->sendGoal<rose_base_msgs::wheelunit_statesAction>(goal, "wheel_controller", 1/25.0);      // Low-level is running @ +- 25hz
+    smc_->sendGoal<rose_base_msgs::wheelunit_statesAction>(goal, "platform_controller", 1/25.0);      // Low-level is running @ +- 25hz
 }
