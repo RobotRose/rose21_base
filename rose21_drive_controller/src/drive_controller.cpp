@@ -72,7 +72,7 @@ DriveController::DriveController(string name, ros::NodeHandle n)
 
     FCC_->setFootprint(frame_of_motion, footprint);
     // laser_scan_sub_ = n_.subscribe("/scan", 1, &DriveController::CB_laserUpdate, this);
-    bumper_states_sub_ = n_.subscribe("/rose21_lift_controller/bumpers2/state", 1, &DriveController::CB_bumperUpdate, this);
+    bumper_states_sub_ = n_.subscribe("/lift_controller/bumpers2/state", 1, &DriveController::CB_bumperUpdate, this);
 
     stopMovement();
 }
