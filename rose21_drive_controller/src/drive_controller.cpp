@@ -178,7 +178,7 @@ void DriveController::CB_CommandVelocity(const rose_base_msgs::cmd_velocityGoalC
 
     if( not executeMovement(goal->cmd_vel.linear.x, goal->cmd_vel.linear.y, goal->cmd_vel.angular.z) )
     {
-        ROS_WARN_NAMED(ROS_NAME, "Could not calculate wheeunit state for requested velocity goal.");
+        ROS_WARN_NAMED(ROS_NAME, "Could not calculate wheelunit state for requested velocity goal.");
         smc_->abort();
     }
     // Otherwise the results depend on platform_controller thus success or failure is registred through CB_success or CB_fail
