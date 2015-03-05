@@ -90,7 +90,7 @@ bool Odometry::calculateOdometry(map<string, WheelUnit>& wheelunits_map, geometr
 		//dist_diff_l 	= -dist_diff_l;
 		ROS_DEBUG_NAMED(ROS_NAME_ODOM, "Sign flip!");
 	}
-	 
+	  
 	float dist_diff_avg		= (dist_diff_l + dist_diff_r) / 2.0;
 	
 
