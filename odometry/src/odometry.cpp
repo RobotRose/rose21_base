@@ -148,7 +148,7 @@ bool Odometry::calculateOdometry(map<string, WheelUnit>& wheelunits_map, geometr
 
 	float variation_coeff = sum2; 	// omitted '/average' in order to prevent div by zero
 
-	if(variation_coeff <= 0.01) 
+	if(variation_coeff <= 0.03) 
 	{	
 		// Create a travled distance vector
 		float dist_vector_x = dist_diff_avg;
