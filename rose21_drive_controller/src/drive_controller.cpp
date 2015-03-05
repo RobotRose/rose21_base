@@ -176,12 +176,10 @@ void DriveController::CB_CommandVelocity(const rose_base_msgs::cmd_velocityGoalC
 {
     ROS_DEBUG_NAMED(ROS_NAME, "Command velocity goal received");
 
-    if(!executeMovement(goal->cmd_vel.linear.x, goal->cmd_vel.linear.y, goal->cmd_vel.angular.z))
+    if( not executeMovement(goal->cmd_vel.linear.x, goal->cmd_vel.linear.y, goal->cmd_vel.angular.z) )
     {
-        rose_base_msgs::cmd_velocityResult server_result;
-        server_result.return_code = false;
-        if(smc_->hasActiveGoal())
-            smc_->sendServerResult(false, server_result);
+        ROS_WARN_NAMED(ROS_NAME, "Could not calculate wheeunit state for requested velocity goal.");
+        smc_->abort();
     }
     // Otherwise the results depend on platform_controller thus success or failure is registred through CB_success or CB_fail
 }
@@ -450,5 +448,5 @@ void DriveController::requestWheelUnitStates()
     // Set this wheel unit state via smc 
     rose_base_msgs::wheelunit_statesGoal goal;
     goal.requested_state = wheelunit_states;
-    smc_->sendGoal<rose_base_msgs::wheelunit_statesAction>(goal, "platform_controller", 1/25.0);      // Low-level is running @ +- 25hz
+    smc_->sendGoal<rose_base_msgs::wheelunit_statesAction>(goal, "platform_controller", 1.0/25.0);      // Low-level is running @ +- 25hz
 }
