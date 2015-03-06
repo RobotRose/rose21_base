@@ -202,12 +202,12 @@ class DriveController
 
     //! @todo OH: HACK move this to safety stack
     //!< Footprint collision checker, returns the distance until collision given the footprint, obstacles and a cmd_vel.
-    FootprintCollisionChecker* FCC_;
-    ros::Subscriber         laser_scan_sub_;
-    ros::Subscriber         bumper_states_sub_;
+    FootprintCollisionChecker   FCC_;
+    ros::Subscriber             laser_scan_sub_;
+    ros::Subscriber             bumper_states_sub_;
 
-    SharedVariable<bool>            sh_bumper_pressed_;
-    OperatorMessaging               operator_gui;
+    SharedVariable<bool>        sh_bumper_pressed_;
+    OperatorMessaging           operator_gui;
     
 };
 
