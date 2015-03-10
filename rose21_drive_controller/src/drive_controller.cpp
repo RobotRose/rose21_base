@@ -200,9 +200,7 @@ bool DriveController::executeMovement(float x_velocity, float y_velocity, float 
 
     //! @todo OH [IMPR]: Disabled checking for laser scan collisions
     if( not checkFCC() )
-    {
         return false;
-    }
     
     requestWheelUnitStates();
 
