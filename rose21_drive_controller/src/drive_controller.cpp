@@ -212,7 +212,7 @@ bool DriveController::executeMovement(float x_velocity, float y_velocity, float 
 //! @todo OH: HACK
 bool DriveController::checkFCC()
 {
-    ROS_INFO_NAMED(ROS_NAME, "Checking FCC...");
+    ROS_DEBUG_NAMED(ROS_NAME, "Checking FCC...");
     return not FCC_.checkVelocity(velocity_, 1.0);
 }
 
