@@ -204,9 +204,11 @@ bool DriveController::executeMovement(float x_velocity, float y_velocity, float 
         succes = stopMovement();
     }
 
-    //! @todo OH [IMPOR]: Disabled.
-    if(checkFCC())
-        requestWheelUnitStates();
+    //! @todo OH [IMPR]: Disabled checking for laser scan collisions
+    if( not checkFCC() )
+        return false;
+    
+    requestWheelUnitStates();
 
     return succes;  //! @todo OH: Improve the results, why failed to set a certain state, enum's etc.?  
 }
