@@ -258,6 +258,9 @@ bool Odometry::calculateOdometry(map<string, WheelUnit>& wheelunits_map, geometr
 		//ROS_INFO_NAMED(ROS_NAME_ODOM, "y_dist: %.5f, velocity.linear.y = %.6f, pos y: %.6f, prev pos y: %.6f, dT: %.4f", y_dist, velocity.linear.y, pose.position.y, prev_y, dT);
 	}
 
+	// Transform velocity from 'odom' frame to local frame (usually 'base_link')
+	rose_geometry::rotateVect(&velocity.linear.x, &velocity.linear.y, yaw);
+
 	// Write yaw back to quaternion form
 	pose.orientation = tf::createQuaternionMsgFromRollPitchYaw(0.0, 0.0, yaw);
 
