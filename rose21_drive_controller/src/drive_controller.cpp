@@ -68,6 +68,8 @@ DriveController::DriveController(string name, ros::NodeHandle n)
     frame_of_motion.pose.orientation.w = 1.0;
 
     FCC_.setFootprint(frame_of_motion, footprint);
+    FCC_.showCollisions();
+
     // laser_scan_sub_ = n_.subscribe("/scan", 1, &DriveController::CB_laserUpdate, this);
     bumper_states_sub_ = n_.subscribe("/lift_controller/bumpers2/state", 1, &DriveController::CB_bumperUpdate, this);
 
