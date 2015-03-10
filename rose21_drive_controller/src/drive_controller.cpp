@@ -134,7 +134,7 @@ void DriveController::CB_bumperUpdate(const contact_sensor_msgs::bumpers& bumper
     FCC_.clearPoints();    //! @todo OH:  WORKS ONLY WITH ONE THING THAT ADDS STUFF
     FCC_.addPoints(lethal_points);
 
-    if( not FCC_.checkVelocity(velocity_, 1.0) )
+    if( not checkFCC() )
         stopMovement();
 }
 
