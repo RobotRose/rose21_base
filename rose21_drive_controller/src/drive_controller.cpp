@@ -203,8 +203,8 @@ bool DriveController::executeMovement(float x_velocity, float y_velocity, float 
     }
 
     //! @todo OH [IMPOR]: Disabled.
-    //if(checkFCC())
-    requestWheelUnitStates();
+    if(checkFCC())
+        requestWheelUnitStates();
 
     return succes;  //! @todo OH: Improve the results, why failed to set a certain state, enum's etc.?  
 }
