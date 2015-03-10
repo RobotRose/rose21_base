@@ -213,7 +213,7 @@ bool DriveController::executeMovement(float x_velocity, float y_velocity, float 
 bool DriveController::checkFCC()
 {
     ROS_INFO_NAMED(ROS_NAME, "Checking FCC...");
-    return FCC_.checkVelocity(velocity_, 1.0);
+    return not FCC_.checkVelocity(velocity_, 1.0);
 }
 
 bool DriveController::calculateRadiusMovement(float w_velocity, float turn_radius)
