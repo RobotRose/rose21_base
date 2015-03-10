@@ -196,7 +196,7 @@ bool DriveController::executeMovement(float x_velocity, float y_velocity, float 
         velocity_.angular.z  = 0.0;  
     }
     else
-        return false;
+        succes = stopMovement();
 
     //! @todo OH [IMPR]: Disabled checking for laser scan collisions
     if( not checkFCC() )
