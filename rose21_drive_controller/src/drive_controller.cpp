@@ -48,21 +48,13 @@ DriveController::DriveController(string name, ros::NodeHandle n)
     wheelunits_.insert( std::pair<string, WheelUnit>(wheelunit->name_, *wheelunit));
     delete wheelunit;
 
-    //! @todo OH: magic numbers
+    //! @todo OH [CONF]: make configurable.
     std::vector<rose_geometry::Point> footprint;
     footprint.push_back(rose_geometry::Point(0.39, 0.29, 0.0));
     footprint.push_back(rose_geometry::Point(-0.39, 0.29, 0.0));
     footprint.push_back(rose_geometry::Point(-0.39, -0.29, 0.0));
     footprint.push_back(rose_geometry::Point(0.39, -0.29, 0.0));
-
-    //! @todo OH: magic numbers
-    float footprint_padding_diff = 0.02;    // [m] 2 cm safety boundary
-    for(auto& point : footprint)
-    {
-        point.x -= rose_conversions::sgn(point.x)*footprint_padding_diff;
-        point.y -= rose_conversions::sgn(point.y)*footprint_padding_diff;
-    }   
-    
+   
     geometry_msgs::PoseStamped frame_of_motion; 
     frame_of_motion.header.frame_id = "base_link";
     frame_of_motion.pose.orientation.w = 1.0;
@@ -171,7 +163,7 @@ void DriveController::CB_CommandVelocity(const rose_base_msgs::cmd_velocityGoalC
 
     if( not executeMovement(goal->cmd_vel.linear.x, goal->cmd_vel.linear.y, goal->cmd_vel.angular.z) )
     {
-        ROS_WARN_NAMED(ROS_NAME, "Could not calculate wheelunit state for requested velocity goal.");
+        ROS_WARN_NAMED(ROS_NAME, "Could not set requested velocity goal.");
         smc_->abort();
     }
     // Otherwise the results depend on platform_controller thus success or failure is registred through CB_success or CB_fail
