@@ -259,7 +259,7 @@ bool Odometry::calculateOdometry(map<string, WheelUnit>& wheelunits_map, geometr
 	}
 
 	// Transform velocity from 'odom' frame to local frame (usually 'base_link')
-	rose_geometry::rotateVect(&velocity.linear.x, &velocity.linear.y, yaw);
+	rose_geometry::rotateVect(&velocity.linear.x, &velocity.linear.y, -yaw);
 
 	// Write yaw back to quaternion form
 	pose.orientation = tf::createQuaternionMsgFromRollPitchYaw(0.0, 0.0, yaw);
