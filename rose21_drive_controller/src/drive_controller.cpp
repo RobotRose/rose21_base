@@ -70,7 +70,7 @@ DriveController::DriveController(string name, ros::NodeHandle n)
 
 DriveController::~DriveController()
 {
-    executeMovement(0.0, 0.0, 0.0); 
+    stopMovement();
 }
 
 //! @todo OH: Disabled
@@ -163,7 +163,8 @@ void DriveController::CB_CommandVelocity(const rose_base_msgs::cmd_velocityGoalC
 
     if( not executeMovement(goal->cmd_vel.linear.x, goal->cmd_vel.linear.y, goal->cmd_vel.angular.z) )
     {
-        ROS_WARN_NAMED(ROS_NAME, "Could not set requested velocity goal.");
+        ROS_WARN_NAMED(ROS_NAME, "Could not set requested velocity goal, stopping.");
+        stopMovement();
         smc_->abort();
     }
     // Otherwise the results depend on platform_controller thus success or failure is registred through CB_success or CB_fail
@@ -192,13 +193,13 @@ bool DriveController::executeMovement(float x_velocity, float y_velocity, float 
         velocity_.angular.z  = 0.0;  
     }
     else
-    {
-        succes = stopMovement();
-    }
+        return false;
 
     //! @todo OH [IMPR]: Disabled checking for laser scan collisions
     if( not checkFCC() )
+    {
         return false;
+    }
     
     requestWheelUnitStates();
 
@@ -334,14 +335,14 @@ bool DriveController::calculateStrafeMovement(float x_velocity, float y_velocity
 
 bool DriveController::stopMovement()
 {
-    if(!setWheelUnitStates( 0.0,
-                            0.0,
-                            0.0,
-                            0.0,
-                            0.0,
-                            0.0,
-                            0.0,
-                            0.0))
+    if( not setWheelUnitStates( 0.0,
+                                0.0,
+                                0.0,
+                                0.0,
+                                0.0,
+                                0.0,
+                                0.0,
+                                0.0))
         return false;
 
     velocity_.linear.x   = 0.0;  
