@@ -95,8 +95,6 @@ int main(int argc, char *argv[])
 		    drive_controller->executeMovement(x_velocity, y_velocity, w_velocity);
 		}
 
-		drive_controller->checkFCC();
-
 		ros::spinOnce();
 		r.sleep();
 	}

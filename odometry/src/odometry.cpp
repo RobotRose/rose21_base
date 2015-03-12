@@ -90,7 +90,7 @@ bool Odometry::calculateOdometry(map<string, WheelUnit>& wheelunits_map, geometr
 		//dist_diff_l 	= -dist_diff_l;
 		ROS_DEBUG_NAMED(ROS_NAME_ODOM, "Sign flip!");
 	}
-	 
+	  
 	float dist_diff_avg		= (dist_diff_l + dist_diff_r) / 2.0;
 	
 
@@ -148,9 +148,9 @@ bool Odometry::calculateOdometry(map<string, WheelUnit>& wheelunits_map, geometr
 
 	float variation_coeff = sum2; 	// omitted '/average' in order to prevent div by zero
 
-	if(variation_coeff <= 0.01) 
+	if(variation_coeff <= 0.03) // Determines whether to use strafing or driving. If lower than value, then strafe.
 	{	
-		// Create a travled distance vector
+		// Create a traveled distance vector
 		float dist_vector_x = dist_diff_avg;
 		float dist_vector_y = 0.0;
 
@@ -257,6 +257,9 @@ bool Odometry::calculateOdometry(map<string, WheelUnit>& wheelunits_map, geometr
 		//ROS_INFO_NAMED(ROS_NAME_ODOM, "x_dist: %.5f, velocity.linear.x = %.6f, pos x: %.6f, prev pos x: %.6f, dT: %.4f", x_dist, velocity.linear.x, pose.position.x, prev_x, dT);
 		//ROS_INFO_NAMED(ROS_NAME_ODOM, "y_dist: %.5f, velocity.linear.y = %.6f, pos y: %.6f, prev pos y: %.6f, dT: %.4f", y_dist, velocity.linear.y, pose.position.y, prev_y, dT);
 	}
+
+	// Transform velocity from 'odom' frame to local frame (usually 'base_link')
+	rose_geometry::rotateVect(&velocity.linear.x, &velocity.linear.y, -yaw);
 
 	// Write yaw back to quaternion form
 	pose.orientation = tf::createQuaternionMsgFromRollPitchYaw(0.0, 0.0, yaw);

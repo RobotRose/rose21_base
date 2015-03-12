@@ -48,29 +48,20 @@ DriveController::DriveController(string name, ros::NodeHandle n)
     wheelunits_.insert( std::pair<string, WheelUnit>(wheelunit->name_, *wheelunit));
     delete wheelunit;
 
-    //! @todo OH: HACK
-    FCC_ = new FootprintCollisionChecker(n_);
-
-    //! @todo OH: magic numbers
+    //! @todo OH [CONF]: make configurable.
     std::vector<rose_geometry::Point> footprint;
     footprint.push_back(rose_geometry::Point(0.39, 0.29, 0.0));
     footprint.push_back(rose_geometry::Point(-0.39, 0.29, 0.0));
     footprint.push_back(rose_geometry::Point(-0.39, -0.29, 0.0));
     footprint.push_back(rose_geometry::Point(0.39, -0.29, 0.0));
-
-    //! @todo OH: magic numbers
-    float footprint_padding_diff = 0.02;    // [m] 2 cm safety boundary
-    for(auto& point : footprint)
-    {
-        point.x -= rose_conversions::sgn(point.x)*footprint_padding_diff;
-        point.y -= rose_conversions::sgn(point.y)*footprint_padding_diff;
-    }   
-    
+   
     geometry_msgs::PoseStamped frame_of_motion; 
     frame_of_motion.header.frame_id = "base_link";
     frame_of_motion.pose.orientation.w = 1.0;
 
-    FCC_->setFootprint(frame_of_motion, footprint);
+    FCC_.setFootprint(frame_of_motion, footprint);
+    FCC_.showCollisions();
+
     // laser_scan_sub_ = n_.subscribe("/scan", 1, &DriveController::CB_laserUpdate, this);
     bumper_states_sub_ = n_.subscribe("/lift_controller/bumpers2/state", 1, &DriveController::CB_bumperUpdate, this);
 
@@ -79,16 +70,13 @@ DriveController::DriveController(string name, ros::NodeHandle n)
 
 DriveController::~DriveController()
 {
-    executeMovement(0.0, 0.0, 0.0); 
+    stopMovement();
 }
 
 //! @todo OH: Disabled
 void DriveController::CB_laserUpdate(const sensor_msgs::LaserScan& input_scan)
 {
-    if(FCC_ == NULL)
-        return;
-    
-    FCC_->clearPoints();    //! @todo OH: WORKS ONLY WITH ONE THING THAT ADDS STUFF
+    FCC_.clearPoints();    //! @todo OH: WORKS ONLY WITH ONE THING THAT ADDS STUFF
 
     StampedVertices lethal_points;
     std_msgs::Header header;
@@ -116,14 +104,11 @@ void DriveController::CB_laserUpdate(const sensor_msgs::LaserScan& input_scan)
         current_angle += input_scan.angle_increment;
     }
     
-    FCC_->addPoints(lethal_points);
+    FCC_.addPoints(lethal_points);
 }
 
 void DriveController::CB_bumperUpdate(const contact_sensor_msgs::bumpers& bumpers_msg)
 {
-    if(FCC_ == NULL)
-        return;
-
     StampedVertices lethal_points;
 
     bool none_pressed = true;
@@ -146,8 +131,11 @@ void DriveController::CB_bumperUpdate(const contact_sensor_msgs::bumpers& bumper
     else
         sh_bumper_pressed_ = true;
 
-    FCC_->clearPoints();    //! @todo OH:  WORKS ONLY WITH ONE THING THAT ADDS STUFF
-    FCC_->addPoints(lethal_points);
+    FCC_.clearPoints();    //! @todo OH:  WORKS ONLY WITH ONE THING THAT ADDS STUFF
+    FCC_.addPoints(lethal_points);
+
+    if( not checkFCC() )
+        stopMovement();
 }
 
 
@@ -176,12 +164,11 @@ void DriveController::CB_CommandVelocity(const rose_base_msgs::cmd_velocityGoalC
 {
     ROS_DEBUG_NAMED(ROS_NAME, "Command velocity goal received");
 
-    if(!executeMovement(goal->cmd_vel.linear.x, goal->cmd_vel.linear.y, goal->cmd_vel.angular.z))
+    if( not executeMovement(goal->cmd_vel.linear.x, goal->cmd_vel.linear.y, goal->cmd_vel.angular.z) )
     {
-        rose_base_msgs::cmd_velocityResult server_result;
-        server_result.return_code = false;
-        if(smc_->hasActiveGoal())
-            smc_->sendServerResult(false, server_result);
+        ROS_WARN_NAMED(ROS_NAME, "Could not set requested velocity goal, stopping.");
+        stopMovement();
+        smc_->abort();
     }
     // Otherwise the results depend on platform_controller thus success or failure is registred through CB_success or CB_fail
 }
@@ -209,12 +196,13 @@ bool DriveController::executeMovement(float x_velocity, float y_velocity, float 
         velocity_.angular.z  = 0.0;  
     }
     else
-    {
         succes = stopMovement();
-    }
 
-    if(checkFCC())
-        requestWheelUnitStates();
+    //! @todo OH [IMPR]: Disabled checking for laser scan collisions
+    if( not checkFCC() )
+        return false;
+    
+    requestWheelUnitStates();
 
     return succes;  //! @todo OH: Improve the results, why failed to set a certain state, enum's etc.?  
 }
@@ -222,36 +210,8 @@ bool DriveController::executeMovement(float x_velocity, float y_velocity, float 
 //! @todo OH: HACK
 bool DriveController::checkFCC()
 {
-    bool  reached_max_sim_time = false;
-    float distance;
-    float rotation;
-    FCC_->check(velocity_, distance, rotation, reached_max_sim_time);
-    ROS_DEBUG_NAMED(ROS_NAME, "Checking FCC... allowed distance, rotation: %.2f,%.2f", distance, rotation);
-
-    if(reached_max_sim_time)
-        return true;
-
-    // Are we doink a point turn?
-    if(fabs(velocity_.linear.x) == 0.0 && fabs(velocity_.linear.y) == 0.0 && fabs(velocity_.angular.z) > 0.0)
-    {
-        if(fabs(rotation) < 0.1)    //! @todo OH: Magic number, make configurable
-        {
-            operator_gui.warn("Gestopt, er is een bumper ingedrukt.");
-            stopMovement();
-            ROS_WARN_NAMED(ROS_NAME, "Stopping, to prevent collision.");
-        }
-    }
-    else if(fabs(velocity_.linear.x) > 0.0 || fabs(velocity_.linear.y) > 0.0 || fabs(velocity_.angular.z) > 0.0)
-    {
-        if(distance < 0.2)          //! @todo OH: Magic number, make configurable
-        {
-            operator_gui.warn("Gestopt, er is een bumper ingedrukt.");
-            stopMovement();
-            ROS_WARN_NAMED(ROS_NAME, "Stopping, to prevent collision.");
-        }
-    }
-
-    return true;
+    ROS_DEBUG_NAMED(ROS_NAME, "Checking FCC...");
+    return not FCC_.checkVelocity(velocity_, 1.0);
 }
 
 bool DriveController::calculateRadiusMovement(float w_velocity, float turn_radius)
@@ -376,14 +336,14 @@ bool DriveController::calculateStrafeMovement(float x_velocity, float y_velocity
 
 bool DriveController::stopMovement()
 {
-    if(!setWheelUnitStates( 0.0,
-                            0.0,
-                            0.0,
-                            0.0,
-                            0.0,
-                            0.0,
-                            0.0,
-                            0.0))
+    if( not setWheelUnitStates( 0.0,
+                                0.0,
+                                0.0,
+                                0.0,
+                                0.0,
+                                0.0,
+                                0.0,
+                                0.0))
         return false;
 
     velocity_.linear.x   = 0.0;  
@@ -450,5 +410,5 @@ void DriveController::requestWheelUnitStates()
     // Set this wheel unit state via smc 
     rose_base_msgs::wheelunit_statesGoal goal;
     goal.requested_state = wheelunit_states;
-    smc_->sendGoal<rose_base_msgs::wheelunit_statesAction>(goal, "platform_controller", 1/25.0);      // Low-level is running @ +- 25hz
+    smc_->sendGoal<rose_base_msgs::wheelunit_statesAction>(goal, "platform_controller", 1.0/25.0);      // Low-level is running @ +- 25hz
 }
