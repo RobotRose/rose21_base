@@ -125,17 +125,19 @@ void DriveController::CB_bumperUpdate(const contact_sensor_msgs::bumpers& bumper
             lethal_points.push_back(StampedVertex (bumper.footprint.header, rose_geometry::Point(vertex.x, vertex.y, 0.0)));
     }   
 
+    FCC_.clearPoints();    //! @todo OH:  WORKS ONLY WITH ONE THING THAT ADDS STUFF
+    FCC_.addPoints(lethal_points);
+    
     //! @todo OH: HACK
     if(none_pressed)
         sh_bumper_pressed_ = false;
-    else
+    else if(sh_bumper_pressed_ == false)    // Only set to true once
+    {
+        if( not checkFCC() )
+            stopMovement();
+
         sh_bumper_pressed_ = true;
-
-    FCC_.clearPoints();    //! @todo OH:  WORKS ONLY WITH ONE THING THAT ADDS STUFF
-    FCC_.addPoints(lethal_points);
-
-    if( not checkFCC() )
-        stopMovement();
+    }
 }
 
 
