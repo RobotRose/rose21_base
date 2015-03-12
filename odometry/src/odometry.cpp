@@ -148,9 +148,9 @@ bool Odometry::calculateOdometry(map<string, WheelUnit>& wheelunits_map, geometr
 
 	float variation_coeff = sum2; 	// omitted '/average' in order to prevent div by zero
 
-	if(variation_coeff <= 0.03) 
+	if(variation_coeff <= 0.03) // Determines whether to use strafing or driving. If lower than value, then strafe.
 	{	
-		// Create a travled distance vector
+		// Create a traveled distance vector
 		float dist_vector_x = dist_diff_avg;
 		float dist_vector_y = 0.0;
 
