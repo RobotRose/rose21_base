@@ -203,8 +203,8 @@ bool DriveController::executeMovement(float x_velocity, float y_velocity, float 
     //! @todo OH [IMPR]: Disabled checking for laser scan collisions
     if( not checkFCC() )
     {
-        ROS_WARN_THROTTLE(0.1, "Footprint collision checker expects a collision.");
-        return false;
+        ROS_WARN_THROTTLE(0.1, "Footprint collision checker expects a collision, stopping.");
+        succes = stopMovement();
     }
     
     requestWheelUnitStates();
