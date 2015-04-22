@@ -412,5 +412,5 @@ void DriveController::requestWheelUnitStates()
     // Set this wheel unit state via smc 
     rose_base_msgs::wheelunit_statesGoal goal;
     goal.requested_state = wheelunit_states;
-    smc_->sendGoal<rose_base_msgs::wheelunit_statesAction>(goal, "platform_controller", 1.0/25.0);      // Low-level is running @ +- 25hz
+    smc_->sendGoal<rose_base_msgs::wheelunit_statesAction>(goal, "platform_controller", 1.0/10.0);
 }
