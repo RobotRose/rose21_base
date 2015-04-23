@@ -136,7 +136,7 @@ void DriveController::CB_bumperUpdate(const contact_sensor_msgs::bumpers& bumper
 
 void DriveController::CB_success(const actionlib::SimpleClientGoalState& state, const rose_base_msgs::wheelunit_statesResultConstPtr& client_result)
 {
-    ROS_DEBUG_NAMED(ROS_NAME, "Succesfully set requested wheel unit state.");
+    ROS_DEBUG_NAMED(ROS_NAME, "Successfully set requested wheel unit state.");
     
     rose_base_msgs::cmd_velocityResult server_result;
     server_result.return_code = client_result->return_code;
