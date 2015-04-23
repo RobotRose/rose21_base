@@ -47,19 +47,12 @@ DriveController::DriveController(string name, ros::NodeHandle n)
     wheelunit = new WheelUnit("BL", 6);
     wheelunits_.insert( std::pair<string, WheelUnit>(wheelunit->name_, *wheelunit));
     delete wheelunit;
-
-    //! @todo OH [CONF]: make configurable.
-    std::vector<rose_geometry::Point> footprint;
-    footprint.push_back(rose_geometry::Point(0.415, 0.32, 0.0));
-    footprint.push_back(rose_geometry::Point(-0.415, 0.32, 0.0));
-    footprint.push_back(rose_geometry::Point(-0.415, -0.32, 0.0));
-    footprint.push_back(rose_geometry::Point(0.415, -0.32, 0.0));
    
     geometry_msgs::PoseStamped frame_of_motion; 
     frame_of_motion.header.frame_id = "base_link";
     frame_of_motion.pose.orientation.w = 1.0;
 
-    FCC_.setFootprint(frame_of_motion, footprint);
+    FCC_.setFrameOfMotion(frame_of_motion);
     FCC_.showCollisions();
 
     // laser_scan_sub_ = n_.subscribe("/scan", 1, &DriveController::CB_laserUpdate, this);
@@ -143,7 +136,7 @@ void DriveController::CB_bumperUpdate(const contact_sensor_msgs::bumpers& bumper
 
 void DriveController::CB_success(const actionlib::SimpleClientGoalState& state, const rose_base_msgs::wheelunit_statesResultConstPtr& client_result)
 {
-    ROS_DEBUG_NAMED(ROS_NAME, "Succesfully set requested wheel unit state.");
+    ROS_DEBUG_NAMED(ROS_NAME, "Successfully set requested wheel unit state.");
     
     rose_base_msgs::cmd_velocityResult server_result;
     server_result.return_code = client_result->return_code;
