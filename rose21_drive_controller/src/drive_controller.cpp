@@ -50,10 +50,10 @@ DriveController::DriveController(string name, ros::NodeHandle n)
 
     //! @todo OH [CONF]: make configurable.
     std::vector<rose_geometry::Point> footprint;
-    footprint.push_back(rose_geometry::Point(0.39, 0.29, 0.0));
-    footprint.push_back(rose_geometry::Point(-0.39, 0.29, 0.0));
-    footprint.push_back(rose_geometry::Point(-0.39, -0.29, 0.0));
-    footprint.push_back(rose_geometry::Point(0.39, -0.29, 0.0));
+    footprint.push_back(rose_geometry::Point(0.415, 0.32, 0.0));
+    footprint.push_back(rose_geometry::Point(-0.415, 0.32, 0.0));
+    footprint.push_back(rose_geometry::Point(-0.415, -0.32, 0.0));
+    footprint.push_back(rose_geometry::Point(0.415, -0.32, 0.0));
    
     geometry_msgs::PoseStamped frame_of_motion; 
     frame_of_motion.header.frame_id = "base_link";
@@ -202,7 +202,10 @@ bool DriveController::executeMovement(float x_velocity, float y_velocity, float 
 
     //! @todo OH [IMPR]: Disabled checking for laser scan collisions
     if( not checkFCC() )
-        return false;
+    {
+        ROS_WARN_THROTTLE(0.1, "Footprint collision checker expects a collision, stopping (this could be a bumper which is pressed).");
+        succes = stopMovement();
+    }
     
     requestWheelUnitStates();
 
@@ -213,7 +216,7 @@ bool DriveController::executeMovement(float x_velocity, float y_velocity, float 
 bool DriveController::checkFCC()
 {
     ROS_DEBUG_NAMED(ROS_NAME, "Checking FCC...");
-    return not FCC_.checkVelocity(velocity_, 1.0);
+    return not FCC_.checkVelocity(velocity_, 1.0); //! @todo OH [IMPR]: Should take velocity and acceleration into account when determining if it can drive somewhere.
 }
 
 bool DriveController::calculateRadiusMovement(float w_velocity, float turn_radius)
@@ -412,5 +415,5 @@ void DriveController::requestWheelUnitStates()
     // Set this wheel unit state via smc 
     rose_base_msgs::wheelunit_statesGoal goal;
     goal.requested_state = wheelunit_states;
-    smc_->sendGoal<rose_base_msgs::wheelunit_statesAction>(goal, "platform_controller", 1.0/25.0);      // Low-level is running @ +- 25hz
+    smc_->sendGoal<rose_base_msgs::wheelunit_statesAction>(goal, "platform_controller", 1.0/25.0);
 }
