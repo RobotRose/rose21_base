@@ -351,6 +351,24 @@ bool DriveController::stopMovement()
     return true;
 }
 
+float DriveController::getSpeedScale( const std::vector<std::pair<WheelUnit, float>>& wheelunit_speeds )
+{
+    float speed_scale = 1.0;
+    for(const auto& wheelunit_speed_pair : wheelunit_speeds)
+    {
+        if(wheelunit_speed_pair.second == 0.0)
+            continue;
+
+        if(wheelunit_speed_pair.second < wheelunit_speed_pair.first.getMinVel())
+            speed_scale = fmin(speed_scale, wheelunit_speed_pair.first.getMinVel()/wheelunit_speed_pair.second);
+
+        if(wheelunit_speed_pair.second > wheelunit_speed_pair.first.getMaxVel())
+            speed_scale = fmin(speed_scale, wheelunit_speed_pair.first.getMaxVel()/wheelunit_speed_pair.second);
+    }
+
+    return speed_scale; 
+}
+
 bool DriveController::setWheelUnitStates(   float angle_right_front, 
                                             float angle_left_front, 
                                             float angle_right_back, 
@@ -360,22 +378,35 @@ bool DriveController::setWheelUnitStates(   float angle_right_front,
                                             float speed_right_back, 
                                             float speed_left_back)
 {
-    if(!wheelunits_.at("FR").setAngleRad(angle_right_front))
+    if( not wheelunits_.at("FR").setAngleRad(angle_right_front) )
         return false;
-    if(!wheelunits_.at("FL").setAngleRad(angle_left_front))
+    if( not wheelunits_.at("FL").setAngleRad(angle_left_front) )
         return false;
-    if(!wheelunits_.at("BR").setAngleRad(angle_right_back))
+    if( not wheelunits_.at("BR").setAngleRad(angle_right_back) )
         return false;
-    if(!wheelunits_.at("BL").setAngleRad(angle_left_back))
+    if( not wheelunits_.at("BL").setAngleRad(angle_left_back) )
         return false;
 
-    if(!wheelunits_.at("FR").setVelocityMetersPerSec(speed_right_front))
+    // Scale to max speed limited by fastest wheel
+    std::vector<std::pair<WheelUnit, float>> wheelunit_speeds;
+
+    wheelunit_speeds.push_back(std::pair<WheelUnit, float>(wheelunits_.at("FR"), speed_right_front));
+    wheelunit_speeds.push_back(std::pair<WheelUnit, float>(wheelunits_.at("FL"), speed_left_front));
+    wheelunit_speeds.push_back(std::pair<WheelUnit, float>(wheelunits_.at("BR"), speed_right_back));
+    wheelunit_speeds.push_back(std::pair<WheelUnit, float>(wheelunits_.at("BL"), speed_left_back));
+
+    float scale = getSpeedScale(wheelunit_speeds);
+
+    if(scale != 1.0)
+        ROS_INFO_NAMED(ROS_NAME, "Speed scaling factor: %.2f", scale);
+
+    if( not wheelunits_.at("FR").setVelocityMetersPerSec(speed_right_front * scale) )
         return false;
-    if(!wheelunits_.at("FL").setVelocityMetersPerSec(speed_left_front))
+    if( not wheelunits_.at("FL").setVelocityMetersPerSec(speed_left_front * scale) )
         return false;
-    if(!wheelunits_.at("BR").setVelocityMetersPerSec(speed_right_back))
+    if( not wheelunits_.at("BR").setVelocityMetersPerSec(speed_right_back * scale) )
         return false;
-    if(!wheelunits_.at("BL").setVelocityMetersPerSec(speed_left_back))
+    if( not wheelunits_.at("BL").setVelocityMetersPerSec(speed_left_back * scale) )
         return false;
 
     return true;

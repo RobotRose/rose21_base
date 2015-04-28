@@ -157,6 +157,8 @@ class DriveController
      */
     bool stopMovement();
 
+    float getSpeedScale( const std::vector<std::pair<WheelUnit, float>>& wheelunit_speeds );
+
     /**
      * Stores the wanted wheel unit states in the local wheel_units_ map.
      * @param[in] angle_right_front The angle of the right front wheel.
