@@ -136,7 +136,7 @@ void DriveController::CB_bumperUpdate(const contact_sensor_msgs::bumpers& bumper
 
 void DriveController::CB_success(const actionlib::SimpleClientGoalState& state, const rose_base_msgs::wheelunit_statesResultConstPtr& client_result)
 {
-    ROS_INFO_NAMED(ROS_NAME, "Successfully set requested wheel unit state.");
+    ROS_DEBUG_NAMED(ROS_NAME, "Successfully set requested wheel unit state.");
     
     rose_base_msgs::cmd_velocityResult server_result;
     server_result.return_code = client_result->return_code;
@@ -157,7 +157,7 @@ void DriveController::CB_fail(const actionlib::SimpleClientGoalState& state, con
 
 void DriveController::CB_CommandVelocity(const rose_base_msgs::cmd_velocityGoalConstPtr& goal, SMC* smc)
 {
-    ROS_INFO_NAMED(ROS_NAME, "Command velocity goal received");
+    ROS_DEBUG_NAMED(ROS_NAME, "Command velocity goal received");
 
     if( not executeMovement(goal->cmd_vel.linear.x, goal->cmd_vel.linear.y, goal->cmd_vel.angular.z) )
     {
@@ -170,7 +170,7 @@ void DriveController::CB_CommandVelocity(const rose_base_msgs::cmd_velocityGoalC
 
 bool DriveController::executeMovement(float x_velocity, float y_velocity, float w_velocity)
 {
-    ROS_INFO_NAMED(ROS_NAME, "executeMovement called with [%.2fm/s, %.2fm/s, %.2frad/s]", x_velocity, y_velocity, w_velocity);
+    ROS_DEBUG_NAMED(ROS_NAME, "executeMovement called with [%.2fm/s, %.2fm/s, %.2frad/s]", x_velocity, y_velocity, w_velocity);
     
     bool succes = false;
     // Move along a circle if our angle speed is non zero
@@ -208,7 +208,7 @@ bool DriveController::executeMovement(float x_velocity, float y_velocity, float 
 //! @todo OH: HACK
 bool DriveController::checkFCC()
 {
-    ROS_INFO_NAMED(ROS_NAME, "Checking FCC...");
+    ROS_DEBUG_NAMED(ROS_NAME, "Checking FCC...");
     return not FCC_.checkVelocity(velocity_, 1.0); //! @todo OH [IMPR]: Should take velocity and acceleration into account when determining if it can drive somewhere.
 }
 
@@ -221,7 +221,7 @@ bool DriveController::calculateRadiusMovement(float w_velocity, float turn_radiu
         return false;
     }
 
-    ROS_INFO_NAMED(ROS_NAME, "CalculateRadiusMovement, w_velocity: %.4f, turn_radius: %.4f", w_velocity, turn_radius);
+    ROS_DEBUG_NAMED(ROS_NAME, "CalculateRadiusMovement, w_velocity: %.4f, turn_radius: %.4f", w_velocity, turn_radius);
     float  tangential_velocity = w_velocity*-turn_radius;
 
     return calculateCircularMovement(tangential_velocity, w_velocity);
@@ -242,10 +242,10 @@ bool DriveController::calculateCircularMovement(float tangential_velocity, float
     float half_length       = PLATFORM_WHEELBASE_LENGTH/2.0;
     float half_width        = PLATFORM_WHEELBASE_WIDTH/2.0;
 
-    ROS_INFO_NAMED(ROS_NAME, "CalculateCircularMovement, tangential_velocity: %.4f, w_velocity: %.4f", tangential_velocity, w_velocity);
+    ROS_DEBUG_NAMED(ROS_NAME, "CalculateCircularMovement, tangential_velocity: %.4f, w_velocity: %.4f", tangential_velocity, w_velocity);
     float turn_radius   = tangential_velocity/w_velocity;
 
-    ROS_INFO_NAMED(ROS_NAME, "turn_radius  : %.4f", turn_radius);
+    ROS_DEBUG_NAMED(ROS_NAME, "turn_radius  : %.4f", turn_radius);
 
 
     float angle_left_vector     = atan((turn_radius - half_width)/ half_length);
@@ -254,8 +254,8 @@ bool DriveController::calculateCircularMovement(float tangential_velocity, float
     float angle_left            = (M_PI/2.0 - angle_left_vector);
     float angle_right           = (M_PI/2.0 - angle_right_vector);
 
-    ROS_INFO_NAMED(ROS_NAME, "angle_left: %.4f     | angle_right: %.4f", angle_left, angle_right);
-    // ROS_INFO_NAMED(ROS_NAME, "angle_left_vector: %.4f   | angle_right_vector: %.4f", angle_left_vector, angle_right_vector);
+    ROS_DEBUG_NAMED(ROS_NAME, "angle_left: %.4f     | angle_right: %.4f", angle_left, angle_right);
+    // ROS_DEBUG_NAMED(ROS_NAME, "angle_left_vector: %.4f   | angle_right_vector: %.4f", angle_left_vector, angle_right_vector);
 
     int direction = rose_conversions::sgn(tangential_velocity);
     if(rose_conversions::sgn(tangential_velocity) == 0)
@@ -267,7 +267,7 @@ bool DriveController::calculateCircularMovement(float tangential_velocity, float
 
     float velocity_left     = fabs(w_velocity) * direction * radius_left;
     float velocity_right    = fabs(w_velocity) * direction * radius_right;
-    ROS_INFO_NAMED(ROS_NAME, "Vel L: %.4f          | Vel R: %.4f", velocity_left, velocity_right);
+    ROS_DEBUG_NAMED(ROS_NAME, "Vel L: %.4f          | Vel R: %.4f", velocity_left, velocity_right);
 
     // Flip velocity in correct situations
     if(angle_left >= M_PI/2.0 && rose_conversions::sgn(w_velocity)*rose_conversions::sgn(tangential_velocity) > 0.0)
@@ -277,9 +277,9 @@ bool DriveController::calculateCircularMovement(float tangential_velocity, float
     if(angle_right <= M_PI/2.0  && rose_conversions::sgn(w_velocity)*rose_conversions::sgn(tangential_velocity) <= 0.0)
         velocity_right = -velocity_right;
 
-    ROS_INFO_NAMED(ROS_NAME, "rose_conversions::sgn(w_velocity)*rose_conversions::sgn(tangential_velocity): %d", rose_conversions::sgn(w_velocity)*rose_conversions::sgn(tangential_velocity));
-    ROS_INFO_NAMED(ROS_NAME, "LIM angle_left: %.4f     | angle_right: %.4f", angle_left, angle_right);
-    ROS_INFO_NAMED(ROS_NAME, "LIM Vel L: %.4f          | Vel R: %.4f", velocity_left, velocity_right);
+    ROS_DEBUG_NAMED(ROS_NAME, "rose_conversions::sgn(w_velocity)*rose_conversions::sgn(tangential_velocity): %d", rose_conversions::sgn(w_velocity)*rose_conversions::sgn(tangential_velocity));
+    ROS_DEBUG_NAMED(ROS_NAME, "LIM angle_left: %.4f     | angle_right: %.4f", angle_left, angle_right);
+    ROS_DEBUG_NAMED(ROS_NAME, "LIM Vel L: %.4f          | Vel R: %.4f", velocity_left, velocity_right);
 
 
     float angle_right_front = -angle_right;
@@ -303,7 +303,7 @@ bool DriveController::calculateCircularMovement(float tangential_velocity, float
 
 bool DriveController::calculateStrafeMovement(float x_velocity, float y_velocity)
 {
-    ROS_INFO_NAMED(ROS_NAME, "CalculateStrafeMovement");
+    ROS_DEBUG_NAMED(ROS_NAME, "CalculateStrafeMovement");
 
     float angle;
     if(x_velocity == 0.0 && y_velocity == 0.0)
@@ -313,7 +313,7 @@ bool DriveController::calculateStrafeMovement(float x_velocity, float y_velocity
 
     float velocity  = sqrt(pow(x_velocity, 2.0) + pow(y_velocity, 2.0));
 
-    ROS_INFO_NAMED(ROS_NAME, "Angle: %.4f | Vel: %.4f", angle, velocity);
+    ROS_DEBUG_NAMED(ROS_NAME, "Angle: %.4f | Vel: %.4f", angle, velocity);
 
     // Limit angle to -M_PI/2.0 -> M_PI/2.0, change velocity accordingly
     if(rose_geometry::wrapToHalfPi(&angle))
@@ -397,7 +397,8 @@ bool DriveController::setWheelUnitStates(   float angle_right_front,
 
     float scale = getSpeedScale(wheelunit_speeds);
 
-    ROS_INFO_NAMED(ROS_NAME, "Speed scaling factor: %4.4f", scale);
+    if(scale != 1.0)
+        ROS_INFO_NAMED(ROS_NAME, "Speed scaling factor: %.2f", scale);
 
     if( not wheelunits_.at("FR").setVelocityMetersPerSec(speed_right_front * scale) )
         return false;
@@ -414,11 +415,11 @@ bool DriveController::setWheelUnitStates(   float angle_right_front,
 void DriveController::requestWheelUnitStates()
 {
     // Show debug information
-    ROS_INFO_NAMED(ROS_NAME, "Alphas       FR, FL, BR,BL   : %.4f, %.4f, %.4f, %.4f",  wheelunits_.at("FR").getSetAngleRad(), 
+    ROS_DEBUG_NAMED(ROS_NAME, "Alphas       FR, FL, BR,BL   : %.4f, %.4f, %.4f, %.4f",  wheelunits_.at("FR").getSetAngleRad(), 
                                                                         wheelunits_.at("FL").getSetAngleRad(),
                                                                         wheelunits_.at("BR").getSetAngleRad(),
                                                                         wheelunits_.at("BL").getSetAngleRad());
-    ROS_INFO_NAMED(ROS_NAME, "Velocities       FR, FL, BR,BL   : %.4f, %.4f, %.4f, %.4f",  wheelunits_.at("FR").getSetVelocityMetersPerSec(), 
+    ROS_DEBUG_NAMED(ROS_NAME, "Velocities       FR, FL, BR,BL   : %.4f, %.4f, %.4f, %.4f",  wheelunits_.at("FR").getSetVelocityMetersPerSec(), 
                                                                         wheelunits_.at("FL").getSetVelocityMetersPerSec(),
                                                                         wheelunits_.at("BR").getSetVelocityMetersPerSec(),
                                                                         wheelunits_.at("BL").getSetVelocityMetersPerSec());
